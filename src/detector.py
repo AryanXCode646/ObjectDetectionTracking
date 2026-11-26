@@ -77,6 +77,19 @@ def _label_for_class(class_id: int) -> str:
     return COCO_CLASSES[class_id] if 0 <= class_id < len(COCO_CLASSES) else f"class_{class_id}"
 
 
+def get_static_input_size(session: Any) -> tuple[int, int] | None:
+    """Return ``(width, height)`` if the ONNX model has a static 4D input shape, else ``None``."""
+    inputs = session.get_inputs()
+    if not inputs:
+        return None
+    shape = getattr(inputs[0], "shape", None)
+    if isinstance(shape, (list, tuple)) and len(shape) == 4:
+        h, w = shape[2], shape[3]
+        if isinstance(h, int) and isinstance(w, int) and h > 0 and w > 0:
+            return (w, h)
+    return None
+
+
 def parse_yolov8_output(
     raw_output: np.ndarray,
     orig_shape: tuple[int, int],
@@ -277,6 +290,12 @@ class YOLOv8OnnxDetector:
                 providers=["CPUExecutionProvider"],
             )
         self._input_name = self._session.get_inputs()[0].name
+        self.static_input_size = get_static_input_size(self._session)
+        if self.static_input_size is not None and self.input_size != self.static_input_size:
+            raise ValueError(
+                f"Model {self.model_path.name} requires static input size "
+                f"{self.static_input_size}, got {self.input_size}."
+            )
 
     def detect(self, frame: np.ndarray) -> list[Detection]:
         """Run object detection on a single BGR frame."""

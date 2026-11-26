@@ -3,13 +3,14 @@ import tempfile
 from pathlib import Path
 
 import cv2
+import onnxruntime as ort
 import streamlit as st
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.detector import YOLOv8OnnxDetector
+from src.detector import YOLOv8OnnxDetector, get_static_input_size
 from src.pipeline import iter_tracked_frames
 from src.tracker import SortTracker
 
@@ -57,6 +58,17 @@ def _resolve_model_path(model_filename: str) -> Path | None:
     return path if path.exists() else None
 
 
+def _available_models() -> list[str]:
+    if not MODELS_DIR.exists():
+        return []
+    return sorted(p.name for p in MODELS_DIR.glob("*.onnx"))
+
+
+def _get_model_static_size(model_path: Path) -> tuple[int, int] | None:
+    sess = ort.InferenceSession(str(model_path), providers=["CPUExecutionProvider"])
+    return get_static_input_size(sess)
+
+
 def main() -> None:
     st.set_page_config(page_title="Object Detection & Tracking", layout="wide")
     st.title("Object Detection & Tracking")
@@ -66,6 +78,8 @@ def main() -> None:
         "and are **not** calibrated probabilities that a detection is correct."
     )
 
+    available_models = _available_models()
+
     with st.sidebar:
         st.subheader("Detection Mode")
         mode_names = list(DETECTION_MODES.keys())
@@ -74,22 +88,34 @@ def main() -> None:
         st.caption(preset["desc"])
 
         st.divider()
-        st.subheader("Advanced Controls")
+        st.subheader("Model & Thresholds")
+        model_options = available_models if available_models else [preset["model"]]
+        default_model_idx = (
+            model_options.index(preset["model"]) if preset["model"] in model_options else 0
+        )
+        selected_model = st.selectbox("Model", model_options, index=default_model_idx)
+        model_path = _resolve_model_path(selected_model)
+
         conf_threshold = st.slider("Confidence threshold", 0.05, 0.90, float(preset["conf"]), 0.05)
         iou_threshold = st.slider("NMS IoU threshold", 0.20, 0.80, float(preset["iou"]), 0.05)
-        input_size = st.select_slider(
-            "Input size", options=[416, 480, 544, 640, 768, 832], value=preset["input_size"]
-        )
+
+        static_size = _get_model_static_size(model_path) if model_path is not None else None
+        if static_size is not None:
+            input_size = static_size[0]
+            st.caption(f"Input size: {static_size[0]}×{static_size[1]} (fixed by model)")
+        else:
+            input_size = st.select_slider(
+                "Input size", options=[416, 480, 544, 640, 768, 832], value=preset["input_size"]
+            )
 
         st.divider()
         st.subheader("Video Source")
         source_mode = st.radio("Source", ["Upload video", "Local file path", "Webcam (index 0)"])
         max_frames = st.number_input("Max frames (0 = full video)", min_value=0, value=120, step=10)
 
-    model_path = _resolve_model_path(preset["model"])
     if model_path is None:
         st.error(
-            f"Model weights not found at `{MODELS_DIR / preset['model']}`. "
+            f"Model weights not found at `{MODELS_DIR / selected_model}`. "
             "See README.md for model download instructions."
         )
         return

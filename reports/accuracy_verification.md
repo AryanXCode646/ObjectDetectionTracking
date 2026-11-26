@@ -12,7 +12,7 @@
 | Model | File | Input Shape | Output Shape | Size |
 |:---|:---|:---|:---|:---|
 | YOLOv8n (baseline) | `models/yolov8n.onnx` | `[1, 3, 640, 640]` (static) | `[1, 84, 8400]` | 12.24 MiB |
-| YOLO26n (default) | `models/yolo26n.onnx` | `[batch, 3, height, width]` (dynamic) | `[batch, 84, anchors]` | 10.57 MiB |
+| YOLO26n (default) | `models/yolo26n.onnx` | `[batch, 3, height, width]` (dynamic) | `[batch, 84, anchors]` | 10.18 MiB |
 | YOLOv8s | `models/yolov8s.onnx` | `[1, 3, 640, 640]` (static) | `[1, 84, 8400]` | 42.79 MiB |
 
 ## 3. Evaluation Dataset
@@ -23,9 +23,10 @@
 
 ## 4. Unit Tests
 ```
-$ ./venv/bin/python -m pytest -q
-............................                                             [100%]
-28 passed in 1.38s
+$ ./venv/bin/python -m pytest -q tests
+........................................................................ [ 92%]
+......                                                                   [100%]
+78 passed
 ```
 
 ## 5. Lint & Formatting
@@ -34,7 +35,7 @@ $ ./venv/bin/ruff check .
 All checks passed!
 
 $ ./venv/bin/ruff format --check .
-9 files already formatted
+11 files already formatted
 ```
 
 ## 6. Streamlit Startup

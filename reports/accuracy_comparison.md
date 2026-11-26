@@ -14,9 +14,9 @@
 |:---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | **YOLOv8n baseline** (c=0.35, agnostic NMS) | 213 | 55 | 293 | 0.795 | 0.421 | 0.550 | 0.404 | 0.333 | 0.123 | 111.9 | 8.9 | 12.24 MiB |
 | YOLOv8n fixed (c=0.25, class-aware NMS) | 243 | 95 | 263 | 0.719 | 0.480 | 0.576 | 0.460 | 0.368 | 0.171 | 120.0 | 8.3 | 12.24 MiB |
-| **YOLO26n 640 (threads=2)** | **244** | **81** | **262** | **0.751** | **0.482** | **0.587** | **0.490** | **0.390** | **0.160** | **85.5** | **11.7** | **10.57 MiB** |
-| YOLO26n 768 | 254 | 80 | 252 | 0.760 | 0.502 | 0.605 | 0.501 | 0.401 | 0.198 | 116.7 | 8.6 | 10.57 MiB |
-| YOLO26n 832 | 255 | 85 | 251 | 0.750 | 0.504 | 0.603 | 0.512 | 0.401 | 0.203 | 138.0 | 7.2 | 10.57 MiB |
+| **YOLO26n 640 (threads=2)** | **244** | **81** | **262** | **0.751** | **0.482** | **0.587** | **0.490** | **0.390** | **0.160** | **85.5** | **11.7** | **10.18 MiB** |
+| YOLO26n 768 | 254 | 80 | 252 | 0.760 | 0.502 | 0.605 | 0.501 | 0.401 | 0.198 | 116.7 | 8.6 | 10.18 MiB |
+| YOLO26n 832 | 255 | 85 | 251 | 0.750 | 0.504 | 0.603 | 0.512 | 0.401 | 0.203 | 138.0 | 7.2 | 10.18 MiB |
 | YOLOv8s 640 | 318 | 102 | 188 | 0.757 | 0.628 | 0.687 | 0.664 | 0.544 | 0.289 | 278.3 | 3.6 | 42.79 MiB |
 
 ### Measured Improvements (YOLO26n 640 vs. YOLOv8n baseline)
@@ -27,7 +27,7 @@
 | mAP@50:95 | 0.333 | 0.390 | **+17.1%** |
 | F1 | 0.550 | 0.587 | **+6.7%** |
 | FPS | 8.9 | 11.7 | **+31.5%** |
-| Model size | 12.24 MiB | 10.57 MiB | **−13.7%** |
+| Model size | 12.24 MiB | 10.18 MiB | **−16.8%** |
 
 ## 3. Confidence Threshold Calibration (YOLOv8n, iou=0.45, val split)
 
@@ -88,7 +88,7 @@
 **YOLO26n** is selected as the default model because:
 1. **+21% mAP@50** vs. YOLOv8n baseline on the same test set.
 2. **+31% faster** (11.7 vs. 8.9 FPS) due to fewer parameters (2.4M vs. 3.2M) and efficient architecture.
-3. **14% smaller model** file (10.57 vs. 12.24 MiB).
+3. **16.8% smaller model** file (10.18 vs. 12.24 MiB).
 4. Same ONNX `(1, 84, N)` output layout as YOLOv8, requiring no decoder changes.
 5. Dynamic input shapes enable resolution experiments (768, 832) without re-export.
 6. AGPL-3.0 licensed (same as YOLOv8n), compatible with this open-source project.

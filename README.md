@@ -26,7 +26,7 @@ Object detection alone identifies objects independently on every frame without k
 | Model | mAP@50 | FPS (i3-1115G4) | Size | Decision |
 |:---|:---:|:---:|:---:|:---|
 | YOLOv8n (baseline) | 0.404 | 8.9 | 12.24 MiB | Retained as legacy mode |
-| **YOLO26n** (default) | **0.490** | **11.7** | **10.57 MiB** | **Selected: +21% mAP, +31% faster, smaller** |
+| **YOLO26n** (default) | **0.490** | **11.7** | **10.18 MiB** | **Selected: +21% mAP, +31% faster, smaller** |
 | YOLOv8s | 0.664 | 3.6 | 42.79 MiB | High-accuracy mode |
 
 All metrics measured on COCO128 test split (64 images, 506 annotated objects) with identical evaluation code. See `reports/accuracy_comparison.md` for threshold calibration, resolution experiments, and detailed results.
@@ -51,7 +51,7 @@ CodeAlpha_ObjectDetectionTracking/
 ├── pyproject.toml
 ├── requirements.txt
 ├── models/                  # Gitignored; place ONNX models here
-│   ├── yolo26n.onnx         # Default model (10.57 MiB)
+│   ├── yolo26n.onnx         # Default model (10.18 MiB)
 │   ├── yolov8n.onnx         # Legacy baseline (12.24 MiB)
 │   └── yolov8s.onnx         # High-accuracy mode (42.79 MiB)
 ├── reports/
