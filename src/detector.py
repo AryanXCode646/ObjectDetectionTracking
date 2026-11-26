@@ -23,7 +23,11 @@ def letterbox_image(
     image: np.ndarray,
     target_size: tuple[int, int] = (640, 640),
 ) -> tuple[np.ndarray, float, tuple[float, float]]:
-    """Resize image with unchanged aspect ratio using padding."""
+    """Resize image with unchanged aspect ratio using padding.
+
+    Returns ``(padded_image, scale, (left_pad, top_pad))`` where ``left_pad`` and
+    ``top_pad`` match the exact integer border offsets applied by ``copyMakeBorder``.
+    """
     if image is None or image.size == 0:
         raise ValueError("Input image cannot be empty.")
 
@@ -47,7 +51,30 @@ def letterbox_image(
         cv2.BORDER_CONSTANT,
         value=(114, 114, 114),
     )
-    return padded, scale, (pad_w, pad_h)
+    return padded, scale, (float(left), float(top))
+
+
+def _unscale_and_clip_xyxy(
+    x1: np.ndarray,
+    y1: np.ndarray,
+    x2: np.ndarray,
+    y2: np.ndarray,
+    orig_shape: tuple[int, int],
+    scale: float,
+    pad: tuple[float, float],
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Map letterbox xyxy coordinates back to clipped original image coordinates."""
+    pad_w, pad_h = pad
+    orig_h, orig_w = orig_shape
+    ox1 = np.clip((x1 - pad_w) / scale, 0.0, float(orig_w))
+    oy1 = np.clip((y1 - pad_h) / scale, 0.0, float(orig_h))
+    ox2 = np.clip((x2 - pad_w) / scale, 0.0, float(orig_w))
+    oy2 = np.clip((y2 - pad_h) / scale, 0.0, float(orig_h))
+    return ox1, oy1, ox2, oy2
+
+
+def _label_for_class(class_id: int) -> str:
+    return COCO_CLASSES[class_id] if 0 <= class_id < len(COCO_CLASSES) else f"class_{class_id}"
 
 
 def parse_yolov8_output(
@@ -57,6 +84,8 @@ def parse_yolov8_output(
     pad: tuple[float, float],
     conf_threshold: float = 0.35,
     iou_threshold: float = 0.45,
+    *,
+    class_aware_nms: bool = True,
 ) -> list[Detection]:
     """Decode YOLOv8 ONNX output ``(1, 84, N)`` into filtered ``Detection`` objects."""
     if raw_output.ndim != 3 or raw_output.shape[1] < 5:
@@ -77,21 +106,36 @@ def parse_yolov8_output(
     confidences = confidences[keep]
     class_ids = class_ids[keep]
 
-    pad_w, pad_h = pad
-    orig_h, orig_w = orig_shape
+    half_w = boxes_xywh[:, 2] / 2.0
+    half_h = boxes_xywh[:, 3] / 2.0
+    x1, y1, x2, y2 = _unscale_and_clip_xyxy(
+        boxes_xywh[:, 0] - half_w,
+        boxes_xywh[:, 1] - half_h,
+        boxes_xywh[:, 0] + half_w,
+        boxes_xywh[:, 1] + half_h,
+        orig_shape=orig_shape,
+        scale=scale,
+        pad=pad,
+    )
 
-    # Convert center (cx, cy, w, h) in letterbox space to (x, y, w, h) in original image space
-    x1 = (boxes_xywh[:, 0] - boxes_xywh[:, 2] / 2.0 - pad_w) / scale
-    y1 = (boxes_xywh[:, 1] - boxes_xywh[:, 3] / 2.0 - pad_h) / scale
-    w = boxes_xywh[:, 2] / scale
-    h = boxes_xywh[:, 3] / scale
+    w = x2 - x1
+    h = y2 - y1
+    valid = (w > 0.0) & (h > 0.0)
+    if not np.any(valid):
+        return []
 
-    x1 = np.clip(x1, 0, orig_w)
-    y1 = np.clip(y1, 0, orig_h)
-    w = np.clip(w, 0, orig_w - x1)
-    h = np.clip(h, 0, orig_h - y1)
+    x1, y1, w, h = x1[valid], y1[valid], w[valid], h[valid]
+    confidences = confidences[valid]
+    class_ids = class_ids[valid]
 
-    nms_boxes = np.column_stack([x1, y1, w, h]).tolist()
+    # Class-aware NMS offsets each class into a disjoint coordinate region.
+    if class_aware_nms:
+        max_wh = 7680.0
+        offsets = class_ids.astype(np.float64) * max_wh
+        nms_boxes = np.column_stack([x1 + offsets, y1 + offsets, w, h]).tolist()
+    else:
+        nms_boxes = np.column_stack([x1, y1, w, h]).tolist()
+
     indices = cv2.dnn.NMSBoxes(
         nms_boxes,
         confidences.tolist(),
@@ -103,22 +147,96 @@ def parse_yolov8_output(
 
     detections: list[Detection] = []
     for idx in np.asarray(indices).flatten():
-        bx, by, bw, bh = nms_boxes[idx]
+        bx, by, bw, bh = float(x1[idx]), float(y1[idx]), float(w[idx]), float(h[idx])
         cls_id = int(class_ids[idx])
-        label = COCO_CLASSES[cls_id] if 0 <= cls_id < len(COCO_CLASSES) else f"class_{cls_id}"
         detections.append(
             Detection(
-                bbox=(float(bx), float(by), float(bx + bw), float(by + bh)),
+                bbox=(bx, by, bx + bw, by + bh),
                 confidence=float(confidences[idx]),
                 class_id=cls_id,
-                label=label,
+                label=_label_for_class(cls_id),
             )
         )
     return detections
 
 
+def parse_yolo26_output(
+    raw_output: np.ndarray,
+    orig_shape: tuple[int, int],
+    scale: float,
+    pad: tuple[float, float],
+    conf_threshold: float = 0.25,
+) -> list[Detection]:
+    """Decode end-to-end NMS-free YOLO26 ONNX output ``(1, N, 6)``."""
+    if raw_output.ndim != 3 or raw_output.shape[2] != 6:
+        raise ValueError(f"Unexpected YOLO26 output shape: {raw_output.shape}")
+
+    preds = raw_output[0]
+    confidences = preds[:, 4]
+    keep = confidences >= conf_threshold
+    if not np.any(keep):
+        return []
+
+    preds = preds[keep]
+    x1, y1, x2, y2 = _unscale_and_clip_xyxy(
+        preds[:, 0],
+        preds[:, 1],
+        preds[:, 2],
+        preds[:, 3],
+        orig_shape=orig_shape,
+        scale=scale,
+        pad=pad,
+    )
+
+    detections: list[Detection] = []
+    for i in range(len(preds)):
+        bx1, by1, bx2, by2 = float(x1[i]), float(y1[i]), float(x2[i]), float(y2[i])
+        if bx2 <= bx1 or by2 <= by1:
+            continue
+        cls_id = round(float(preds[i, 5]))
+        detections.append(
+            Detection(
+                bbox=(bx1, by1, bx2, by2),
+                confidence=float(preds[i, 4]),
+                class_id=cls_id,
+                label=_label_for_class(cls_id),
+            )
+        )
+    return detections
+
+
+def parse_yolo_output(
+    raw_output: np.ndarray,
+    orig_shape: tuple[int, int],
+    scale: float,
+    pad: tuple[float, float],
+    conf_threshold: float = 0.35,
+    iou_threshold: float = 0.45,
+    *,
+    class_aware_nms: bool = True,
+) -> list[Detection]:
+    """Dispatch ONNX output decoding based on tensor layout."""
+    if raw_output.ndim == 3 and raw_output.shape[2] == 6:
+        return parse_yolo26_output(
+            raw_output,
+            orig_shape=orig_shape,
+            scale=scale,
+            pad=pad,
+            conf_threshold=conf_threshold,
+        )
+    return parse_yolov8_output(
+        raw_output,
+        orig_shape=orig_shape,
+        scale=scale,
+        pad=pad,
+        conf_threshold=conf_threshold,
+        iou_threshold=iou_threshold,
+        class_aware_nms=class_aware_nms,
+    )
+
+
 class YOLOv8OnnxDetector:
-    """CPU-compatible YOLOv8 ONNX object detector."""
+    """CPU-compatible YOLO ONNX object detector (supports YOLOv8 and YOLO26 layouts)."""
 
     def __init__(
         self,
@@ -127,13 +245,19 @@ class YOLOv8OnnxDetector:
         iou_threshold: float = 0.45,
         input_size: tuple[int, int] = (640, 640),
         session: Any = None,
+        *,
+        class_aware_nms: bool = True,
+        intra_op_num_threads: int | None = None,
     ) -> None:
         if not 0.0 < conf_threshold <= 1.0:
             raise ValueError("Confidence threshold must be in (0.0, 1.0].")
+        if not 0.0 < iou_threshold <= 1.0:
+            raise ValueError("IoU threshold must be in (0.0, 1.0].")
         self.model_path = Path(model_path)
         self.conf_threshold = conf_threshold
         self.iou_threshold = iou_threshold
         self.input_size = input_size
+        self.class_aware_nms = class_aware_nms
 
         if session is not None:
             self._session = session
@@ -143,8 +267,13 @@ class YOLOv8OnnxDetector:
                     f"ONNX model not found at {self.model_path}. "
                     "See README.md for model download instructions."
                 )
+            sess_options = ort.SessionOptions()
+            sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+            if intra_op_num_threads is not None:
+                sess_options.intra_op_num_threads = intra_op_num_threads
             self._session = ort.InferenceSession(
                 str(self.model_path),
+                sess_options=sess_options,
                 providers=["CPUExecutionProvider"],
             )
         self._input_name = self._session.get_inputs()[0].name
@@ -156,15 +285,16 @@ class YOLOv8OnnxDetector:
 
         padded, scale, pad = letterbox_image(frame, self.input_size)
         rgb = cv2.cvtColor(padded, cv2.COLOR_BGR2RGB)
-        blob = rgb.astype(np.float32) / 255.0
-        blob = np.transpose(blob, (2, 0, 1))[np.newaxis, ...]
+        blob = np.ascontiguousarray(np.transpose(rgb, (2, 0, 1))[np.newaxis, ...], dtype=np.float32)
+        blob /= 255.0
 
         outputs = self._session.run(None, {self._input_name: blob})
-        return parse_yolov8_output(
+        return parse_yolo_output(
             outputs[0],
             orig_shape=frame.shape[:2],
             scale=scale,
             pad=pad,
             conf_threshold=self.conf_threshold,
             iou_threshold=self.iou_threshold,
+            class_aware_nms=self.class_aware_nms,
         )

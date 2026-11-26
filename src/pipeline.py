@@ -99,16 +99,20 @@ def iter_tracked_frames(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="YOLOv8 ONNX + SORT Object Detection and Tracking")
+    parser = argparse.ArgumentParser(description="YOLO ONNX + SORT Object Detection and Tracking")
     parser.add_argument("--source", type=str, default=None, help="Path to local video file")
     parser.add_argument("--webcam", action="store_true", help="Use default webcam (index 0)")
     parser.add_argument(
         "--model",
         type=str,
-        default="models/yolov8n.onnx",
-        help="Path to YOLOv8 ONNX model",
+        default="models/yolo26n.onnx",
+        help="Path to YOLO ONNX model",
     )
-    parser.add_argument("--conf", type=float, default=0.35, help="Confidence threshold")
+    parser.add_argument("--conf", type=float, default=0.25, help="Confidence threshold")
+    parser.add_argument("--iou", type=float, default=0.50, help="NMS IoU threshold")
+    parser.add_argument(
+        "--input-size", type=int, default=640, help="Input resolution (single side)"
+    )
     parser.add_argument("--max-frames", type=int, default=None, help="Optional frame limit")
     args = parser.parse_args()
 
@@ -116,8 +120,14 @@ def main() -> None:
         parser.error("Specify --source <video_path> or --webcam.")
 
     source: int | str = 0 if args.webcam else str(args.source)
-    detector = YOLOv8OnnxDetector(args.model, conf_threshold=args.conf)
-    tracker = SortTracker()
+    detector = YOLOv8OnnxDetector(
+        args.model,
+        conf_threshold=args.conf,
+        iou_threshold=args.iou,
+        input_size=(args.input_size, args.input_size),
+        class_aware_nms=True,
+    )
+    tracker = SortTracker(max_age=15, min_hits=1, iou_threshold=0.3, class_aware=True)
 
     try:
         for annotated, _tracks, _fps in iter_tracked_frames(

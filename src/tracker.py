@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 import numpy as np
 from filterpy.kalman import KalmanFilter
+from scipy.optimize import linear_sum_assignment
 
 from src.detector import Detection
 
@@ -123,50 +124,95 @@ class _KalmanBoxTrack:
 
 
 class SortTracker:
-    """Lightweight SORT tracker using Kalman filtering and IoU association."""
+    """SORT tracker using Kalman filtering, Hungarian IoU assignment, and class-aware matching."""
 
     def __init__(
         self,
-        max_age: int = 10,
+        max_age: int = 15,
         min_hits: int = 1,
         iou_threshold: float = 0.3,
+        *,
+        class_aware: bool = True,
+        high_conf_threshold: float | None = None,
     ) -> None:
         self.max_age = max_age
         self.min_hits = min_hits
         self.iou_threshold = iou_threshold
+        self.class_aware = class_aware
+        self.high_conf_threshold = high_conf_threshold
         self._next_id = 1
         self._tracks: list[_KalmanBoxTrack] = []
 
+    def _associate(
+        self,
+        det_indices: list[int],
+        detections: list[Detection],
+        trk_indices: list[int],
+        predicted_boxes: list[tuple[float, float, float, float]],
+    ) -> tuple[list[tuple[int, int]], list[int], list[int]]:
+        if not det_indices or not trk_indices:
+            return [], list(det_indices), list(trk_indices)
+
+        det_arr = np.array([detections[i].bbox for i in det_indices], dtype=np.float32)
+        trk_arr = np.array([predicted_boxes[j] for j in trk_indices], dtype=np.float32)
+        iou_matrix = compute_iou_matrix(det_arr, trk_arr)
+
+        if self.class_aware:
+            det_cls = np.array([detections[i].class_id for i in det_indices])[:, None]
+            trk_cls = np.array([self._tracks[j].class_id for j in trk_indices])[None, :]
+            iou_matrix = np.where(det_cls == trk_cls, iou_matrix, 0.0)
+
+        row_ind, col_ind = linear_sum_assignment(-iou_matrix)
+        matches: list[tuple[int, int]] = []
+        matched_dets: set[int] = set()
+        matched_trks: set[int] = set()
+
+        for r, c in zip(row_ind, col_ind, strict=True):
+            if iou_matrix[r, c] >= self.iou_threshold:
+                d_idx = det_indices[int(r)]
+                t_idx = trk_indices[int(c)]
+                matches.append((d_idx, t_idx))
+                matched_dets.add(d_idx)
+                matched_trks.add(t_idx)
+
+        unmatched_dets = [i for i in det_indices if i not in matched_dets]
+        unmatched_trks = [j for j in trk_indices if j not in matched_trks]
+        return matches, unmatched_dets, unmatched_trks
+
     def update(self, detections: list[Detection]) -> list[TrackedObject]:
         """Update tracker state with current frame detections and return active tracks."""
-        predicted_boxes: list[tuple[float, float, float, float]] = []
-        for track in self._tracks:
-            predicted_boxes.append(track.predict())
+        predicted_boxes = [track.predict() for track in self._tracks]
+        all_trk_indices = list(range(len(self._tracks)))
 
-        matched_track_indices: set[int] = set()
-        matched_det_indices: set[int] = set()
+        if self.high_conf_threshold is not None:
+            # Two-stage ByteTrack-style association: high-confidence first, then low-confidence
+            # detections matched only against remaining unmatched tracks.
+            high_dets = [
+                i for i, d in enumerate(detections) if d.confidence >= self.high_conf_threshold
+            ]
+            low_dets = [
+                i for i, d in enumerate(detections) if d.confidence < self.high_conf_threshold
+            ]
+            matches_hi, unmatched_hi, unmatched_trks = self._associate(
+                high_dets, detections, all_trk_indices, predicted_boxes
+            )
+            matches_lo, _, _ = self._associate(
+                low_dets, detections, unmatched_trks, predicted_boxes
+            )
+            matches = matches_hi + matches_lo
+            unmatched_new_dets = unmatched_hi
+        else:
+            all_det_indices = list(range(len(detections)))
+            matches, unmatched_new_dets, _ = self._associate(
+                all_det_indices, detections, all_trk_indices, predicted_boxes
+            )
 
-        if self._tracks and detections:
-            trk_arr = np.array(predicted_boxes, dtype=np.float32)
-            det_arr = np.array([d.bbox for d in detections], dtype=np.float32)
-            iou_matrix = compute_iou_matrix(det_arr, trk_arr)
+        for det_idx, trk_idx in matches:
+            self._tracks[trk_idx].update(detections[det_idx])
 
-            # Greedy highest-IoU assignment
-            candidates = np.argwhere(iou_matrix >= self.iou_threshold)
-            if len(candidates) > 0:
-                scores = iou_matrix[candidates[:, 0], candidates[:, 1]]
-                order = np.argsort(-scores)
-                for idx in order:
-                    det_idx, trk_idx = int(candidates[idx, 0]), int(candidates[idx, 1])
-                    if det_idx not in matched_det_indices and trk_idx not in matched_track_indices:
-                        self._tracks[trk_idx].update(detections[det_idx])
-                        matched_det_indices.add(det_idx)
-                        matched_track_indices.add(trk_idx)
-
-        for det_idx, det in enumerate(detections):
-            if det_idx not in matched_det_indices:
-                self._tracks.append(_KalmanBoxTrack(self._next_id, det))
-                self._next_id += 1
+        for det_idx in unmatched_new_dets:
+            self._tracks.append(_KalmanBoxTrack(self._next_id, detections[det_idx]))
+            self._next_id += 1
 
         self._tracks = [t for t in self._tracks if t.time_since_update <= self.max_age]
 
