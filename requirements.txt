@@ -5,3 +5,4 @@ onnxruntime
 ruff
 pytest
 streamlit
+scipy
