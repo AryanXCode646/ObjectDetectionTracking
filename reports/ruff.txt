@@ -1,0 +1,1447 @@
+BLE001 Do not catch blind exception: `Exception`
+  --> CodeAlpha_AI_Internship/CodeAlpha_LanguageTranslationTool/src/app.py:27:20
+   |
+25 |                 st.success("Translation complete")
+26 |                 st.write(result)
+27 |             except Exception as e:
+   |                    ^^^^^^^^^
+28 |                 st.error(f"Translation failed: {e}")
+   |
+
+F401 [*] `typing.Optional` imported but unused
+  --> Q-Plastic/src/qplastic/backends/aer_backend.py:12:37
+   |
+11 | from dataclasses import dataclass
+12 | from typing import Any, Dict, List, Optional, Tuple
+   |                                     ^^^^^^^^
+13 |
+14 | import numpy as np
+   |
+help: Remove unused import: `typing.Optional`
+   |
+11 | from dataclasses import dataclass
+   - from typing import Any, Dict, List, Optional, Tuple
+12 + from typing import Any, Dict, List, Tuple
+13 |
+   |
+
+F401 [*] `typing.Tuple` imported but unused
+ --> Q-Plastic/src/qplastic/noise/models.py:6:26
+  |
+4 | from __future__ import annotations
+5 |
+6 | from typing import Dict, Tuple
+  |                          ^^^^^
+7 |
+8 | import numpy as np
+  |
+help: Remove unused import: `typing.Tuple`
+  |
+5 |
+  - from typing import Dict, Tuple
+6 + from typing import Dict
+7 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> Q-Plastic/src/qplastic/processor/topology.py:8:1
+   |
+ 6 |   """
+ 7 |
+ 8 | / from __future__ import annotations
+ 9 | |
+10 | | from typing import List
+11 | |
+12 | | from .config import Coupling, Topology, ProcessorConfig
+   | |_______________________________________________________^
+help: Organize imports
+   |
+11 |
+   - from .config import Coupling, Topology, ProcessorConfig
+12 + from .config import Coupling, ProcessorConfig, Topology
+13 |
+   |
+
+F401 [*] `.config.Topology` imported but unused
+  --> Q-Plastic/src/qplastic/processor/topology.py:12:31
+   |
+10 | from typing import List
+11 |
+12 | from .config import Coupling, Topology, ProcessorConfig
+   |                               ^^^^^^^^
+help: Remove unused import: `.config.Topology`
+   |
+11 |
+   - from .config import Coupling, Topology, ProcessorConfig
+12 + from .config import Coupling, ProcessorConfig
+13 |
+   |
+
+F401 [*] `numpy` imported but unused
+ --> Q-Plastic/tests/test_vqp02_integration_and_cli.py:6:17
+  |
+4 | import pathlib
+5 |
+6 | import numpy as np
+  |                 ^^
+7 | import pytest
+8 | from typer.testing import CliRunner
+  |
+help: Remove unused import: `numpy`
+  |
+5 |
+  - import numpy as np
+6 | import pytest
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> dispatch_repo/dispatch/cli.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | import argparse
+ 4 | | import logging
+ 5 | | import os
+ 6 | | import sys
+ 7 | |
+ 8 | | from .config import ConfigError, Settings
+ 9 | | from .db import StateStore
+10 | | from .engine import SendEngine, enqueue_campaign, import_recipients
+11 | | from .providers.resend_provider import ResendProvider
+12 | | from .sources.json_source import JSONFileSource
+13 | | from .templates.launch import LaunchTemplate
+14 | | from .validation import SyntaxAndMXValidator, SyntaxOnlyValidator, DNS_AVAILABLE
+   | |________________________________________________________________________________^
+15 |
+16 |   # Registries: this is the one place that knows concrete source/template
+   |
+help: Organize imports
+   |
+13 | from .templates.launch import LaunchTemplate
+   - from .validation import SyntaxAndMXValidator, SyntaxOnlyValidator, DNS_AVAILABLE
+14 + from .validation import DNS_AVAILABLE, SyntaxAndMXValidator, SyntaxOnlyValidator
+15 |
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/config.py:17:15
+   |
+15 |     from_email: str
+16 |     from_name: str
+17 |     reply_to: Optional[str]
+   |               ^^^^^^^^^^^^^
+18 |
+19 |     db_path: str
+   |
+help: Convert to `X | None`
+   |
+16 |     from_name: str
+   -     reply_to: Optional[str]
+17 +     reply_to: str | None
+18 |
+   |
+
+UP037 [*] Remove quotes from type annotation
+  --> dispatch_repo/dispatch/config.py:48:26
+   |
+47 |     @classmethod
+48 |     def from_env(cls) -> "Settings":
+   |                          ^^^^^^^^^^
+49 |         def get(name: str, default: Optional[str] = None, required: bool = False) -> Optional[str]:
+50 |             val = os.environ.get(name, default)
+   |
+help: Remove quotes
+   |
+47 |     @classmethod
+   -     def from_env(cls) -> "Settings":
+48 +     def from_env(cls) -> Settings:
+49 |         def get(name: str, default: Optional[str] = None, required: bool = False) -> Optional[str]:
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/config.py:49:37
+   |
+47 |     @classmethod
+48 |     def from_env(cls) -> "Settings":
+49 |         def get(name: str, default: Optional[str] = None, required: bool = False) -> Optional[str]:
+   |                                     ^^^^^^^^^^^^^
+50 |             val = os.environ.get(name, default)
+51 |             if required and not val:
+   |
+help: Convert to `X | None`
+   |
+48 |     def from_env(cls) -> "Settings":
+   -         def get(name: str, default: Optional[str] = None, required: bool = False) -> Optional[str]:
+49 +         def get(name: str, default: str | None = None, required: bool = False) -> Optional[str]:
+50 |             val = os.environ.get(name, default)
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/config.py:49:86
+   |
+47 |     @classmethod
+48 |     def from_env(cls) -> "Settings":
+49 |         def get(name: str, default: Optional[str] = None, required: bool = False) -> Optional[str]:
+   |                                                                                      ^^^^^^^^^^^^^
+50 |             val = os.environ.get(name, default)
+51 |             if required and not val:
+   |
+help: Convert to `X | None`
+   |
+48 |     def from_env(cls) -> "Settings":
+   -         def get(name: str, default: Optional[str] = None, required: bool = False) -> Optional[str]:
+49 +         def get(name: str, default: Optional[str] = None, required: bool = False) -> str | None:
+50 |             val = os.environ.get(name, default)
+   |
+
+UP035 [*] Import from `collections.abc` instead: `Iterator`
+  --> dispatch_repo/dispatch/db.py:9:1
+   |
+ 7 | from contextlib import contextmanager
+ 8 | from datetime import datetime, timedelta, timezone
+ 9 | from typing import Iterator, Optional
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+10 |
+11 | from .models import Recipient
+   |
+help: Import from `collections.abc`
+   |
+8  | from datetime import datetime, timedelta, timezone
+   - from typing import Iterator, Optional
+9  + from typing import Optional
+10 + from collections.abc import Iterator
+11 |
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> dispatch_repo/dispatch/db.py:67:25
+   |
+66 | def _now() -> str:
+67 |     return datetime.now(timezone.utc).isoformat()
+   |                         ^^^^^^^^^^^^
+help: Convert to `datetime.UTC` alias
+   |
+7  | from contextlib import contextmanager
+   - from datetime import datetime, timedelta, timezone
+8  + from datetime import datetime, timedelta, timezone, UTC
+9  | from typing import Iterator, Optional
+--------------------------------------------------------------------------------
+66 | def _now() -> str:
+   -     return datetime.now(timezone.utc).isoformat()
+67 +     return datetime.now(UTC).isoformat()
+68 |
+   |
+
+UP045 [*] Use `X | None` for type annotations
+   --> dispatch_repo/dispatch/db.py:98:56
+    |
+ 96 |     # ---- recipients -----------------------------------------------------
+ 97 |
+ 98 |     def upsert_recipient(self, r: Recipient, campaign: Optional[str] = None) -> tuple[int, bool]:
+    |                                                        ^^^^^^^^^^^^^
+ 99 |         """Insert a recipient if new. Returns (recipient_id, was_new)."""
+100 |         with self._connect() as conn:
+    |
+help: Convert to `X | None`
+   |
+97 |
+   -     def upsert_recipient(self, r: Recipient, campaign: Optional[str] = None) -> tuple[int, bool]:
+98 +     def upsert_recipient(self, r: Recipient, campaign: str | None = None) -> tuple[int, bool]:
+99 |         """Insert a recipient if new. Returns (recipient_id, was_new)."""
+   |
+
+UP045 [*] Use `X | None` for type annotations
+   --> dispatch_repo/dispatch/db.py:135:42
+    |
+133 |             return recipient_id, was_new
+134 |
+135 |     def count_recipients(self, campaign: Optional[str] = None) -> int:
+    |                                          ^^^^^^^^^^^^^
+136 |         with self._connect() as conn:
+137 |             if campaign:
+    |
+help: Convert to `X | None`
+    |
+134 |
+    -     def count_recipients(self, campaign: Optional[str] = None) -> int:
+135 +     def count_recipients(self, campaign: str | None = None) -> int:
+136 |         with self._connect() as conn:
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> dispatch_repo/dispatch/db.py:260:32
+    |
+258 |         """Reset jobs stuck in 'sending' (e.g. from an interrupted or crashed run)
+259 |         back to 'pending' if updated_at is older than `older_than_seconds` ago."""
+260 |         cutoff = (datetime.now(timezone.utc) - timedelta(seconds=older_than_seconds)).isoformat()
+    |                                ^^^^^^^^^^^^
+261 |         now = _now()
+262 |         with self._connect() as conn:
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   | from contextlib import contextmanager
+    - from datetime import datetime, timedelta, timezone
+8   + from datetime import datetime, timedelta, timezone, UTC
+9   | from typing import Iterator, Optional
+--------------------------------------------------------------------------------
+259 |         back to 'pending' if updated_at is older than `older_than_seconds` ago."""
+    -         cutoff = (datetime.now(timezone.utc) - timedelta(seconds=older_than_seconds)).isoformat()
+260 +         cutoff = (datetime.now(UTC) - timedelta(seconds=older_than_seconds)).isoformat()
+261 |         now = _now()
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> dispatch_repo/dispatch/db.py:271:60
+    |
+269 |             return cur.rowcount
+270 |
+271 |     def mark_sent(self, send_id: int, provider_message_id: Optional[str]) -> None:
+    |                                                            ^^^^^^^^^^^^^
+272 |         with self._connect() as conn:
+273 |             conn.execute(
+    |
+help: Convert to `X | None`
+    |
+270 |
+    -     def mark_sent(self, send_id: int, provider_message_id: Optional[str]) -> None:
+271 +     def mark_sent(self, send_id: int, provider_message_id: str | None) -> None:
+272 |         with self._connect() as conn:
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> dispatch_repo/dispatch/db.py:292:26
+    |
+290 |         attempts: int,
+291 |         error: str,
+292 |         next_attempt_at: Optional[str],
+    |                          ^^^^^^^^^^^^^
+293 |     ) -> None:
+294 |         """Record a failed attempt. If `next_attempt_at` is given, the job
+    |
+help: Convert to `X | None`
+    |
+291 |         error: str,
+    -         next_attempt_at: Optional[str],
+292 +         next_attempt_at: str | None,
+293 |     ) -> None:
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> dispatch_repo/dispatch/dns_cache.py:107:41
+    |
+105 |     # Public API
+106 |     # ---------------------------------------------------------------------
+107 |     def get(self, domain: str) -> tuple[Optional[ValidationResult], bool, bool]:
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+108 |         """Return cached result, hit flag, and expiration flag.
+    |
+help: Convert to `X | None`
+    |
+106 |     # ---------------------------------------------------------------------
+    -     def get(self, domain: str) -> tuple[Optional[ValidationResult], bool, bool]:
+107 +     def get(self, domain: str) -> tuple[ValidationResult | None, bool, bool]:
+108 |         """Return cached result, hit flag, and expiration flag.
+    |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/engine.py:59:67
+   |
+59 | def enqueue_campaign(store: StateStore, campaign: str, validator: Optional[RecipientValidator] = None) -> EnqueueStats:
+   |                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+60 |     """Create a send job for every known recipient that doesn't already
+61 |     have one for this campaign. Idempotent — safe to re-run.
+   |
+help: Convert to `X | None`
+   |
+58 |
+   - def enqueue_campaign(store: StateStore, campaign: str, validator: Optional[RecipientValidator] = None) -> EnqueueStats:
+59 + def enqueue_campaign(store: StateStore, campaign: str, validator: RecipientValidator | None = None) -> EnqueueStats:
+60 |     """Create a send job for every known recipient that doesn't already
+   |
+
+UP045 [*] Use `X | None` for type annotations
+   --> dispatch_repo/dispatch/engine.py:117:77
+    |
+117 | def _next_attempt_at(attempts: int, base: float, cap: float, floor_seconds: Optional[float] = None) -> str:
+    |                                                                             ^^^^^^^^^^^^^^^
+118 |     """Exponential backoff with full jitter: base * 2^attempts, capped,
+119 |     then a random draw in [0, that]. `floor_seconds` (from a provider's
+    |
+help: Convert to `X | None`
+    |
+116 |
+    - def _next_attempt_at(attempts: int, base: float, cap: float, floor_seconds: Optional[float] = None) -> str:
+117 + def _next_attempt_at(attempts: int, base: float, cap: float, floor_seconds: float | None = None) -> str:
+118 |     """Exponential backoff with full jitter: base * 2^attempts, capped,
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> dispatch_repo/dispatch/engine.py:126:26
+    |
+124 |     if floor_seconds:
+125 |         delay = max(delay, floor_seconds)
+126 |     return (datetime.now(timezone.utc) + timedelta(seconds=delay)).isoformat()
+    |                          ^^^^^^^^^^^^
+help: Convert to `datetime.UTC` alias
+    |
+6   | from dataclasses import dataclass
+    - from datetime import datetime, timedelta, timezone
+7   + from datetime import datetime, timedelta, timezone, UTC
+8   | from typing import Optional
+--------------------------------------------------------------------------------
+125 |         delay = max(delay, floor_seconds)
+    -     return (datetime.now(timezone.utc) + timedelta(seconds=delay)).isoformat()
+126 +     return (datetime.now(UTC) + timedelta(seconds=delay)).isoformat()
+127 |
+    |
+
+F841 [*] Local variable `exc` is assigned to but never used
+   --> dispatch_repo/dispatch/engine.py:170:37
+    |
+168 |                     logger.info("[dry-run] would send %r to %s", rendered.subject, recipient.email)
+169 |                     stats.sent += 1
+170 |                 except Exception as exc:
+    |                                     ^^^
+171 |                     logger.exception("[dry-run] Template render failed for %s", recipient.email)
+172 |                     stats.failed_exhausted += 1
+    |
+help: Remove assignment to unused variable `exc`
+    |
+169 |                     stats.sent += 1
+    -                 except Exception as exc:
+170 +                 except Exception:
+171 |                     logger.exception("[dry-run] Template render failed for %s", recipient.email)
+    |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/models.py:14:18
+   |
+12 |     email: str
+13 |     source: str = "unknown"
+14 |     external_id: Optional[str] = None
+   |                  ^^^^^^^^^^^^^
+15 |     created_at: Optional[datetime] = None
+16 |     # Free-form bag for personalization fields (name, plan interest, etc).
+   |
+help: Convert to `X | None`
+   |
+13 |     source: str = "unknown"
+   -     external_id: Optional[str] = None
+14 +     external_id: str | None = None
+15 |     created_at: Optional[datetime] = None
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/models.py:15:17
+   |
+13 |     source: str = "unknown"
+14 |     external_id: Optional[str] = None
+15 |     created_at: Optional[datetime] = None
+   |                 ^^^^^^^^^^^^^^^^^^
+16 |     # Free-form bag for personalization fields (name, plan interest, etc).
+17 |     # Sources decide what goes in here; Templates decide what they read.
+   |
+help: Convert to `X | None`
+   |
+14 |     external_id: Optional[str] = None
+   -     created_at: Optional[datetime] = None
+15 +     created_at: datetime | None = None
+16 |     # Free-form bag for personalization fields (name, plan interest, etc).
+   |
+
+RUF022 [*] `__all__` is not sorted
+  --> dispatch_repo/dispatch/providers/__init__.py:11:11
+   |
+ 9 |   from .resend_provider import ResendProvider
+10 |
+11 |   __all__ = [
+   |  ___________^
+12 | |     "EmailProvider",
+13 | |     "EmailJob",
+14 | |     "SendResult",
+15 | |     "BatchItemResult",
+16 | |     "PermanentProviderError",
+17 | |     "TransientProviderError",
+18 | |     "ResendProvider",
+19 | | ]
+   | |_^
+help: Apply an isort-style sorting to `__all__`
+   |
+11 | __all__ = [
+12 +     "BatchItemResult",
+13 +     "EmailJob",
+14 |     "EmailProvider",
+   -     "EmailJob",
+15 +     "PermanentProviderError",
+16 +     "ResendProvider",
+17 |     "SendResult",
+   -     "BatchItemResult",
+   -     "PermanentProviderError",
+18 |     "TransientProviderError",
+   -     "ResendProvider",
+19 | ]
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/providers/base.py:44:17
+   |
+42 |     ref: object
+43 |     ok: bool
+44 |     message_id: Optional[str] = None
+   |                 ^^^^^^^^^^^^^
+45 |     error: Optional[str] = None
+46 |     # Only meaningful when ok=False. True = don't retry (dead), False = worth
+   |
+help: Convert to `X | None`
+   |
+43 |     ok: bool
+   -     message_id: Optional[str] = None
+44 +     message_id: str | None = None
+45 |     error: Optional[str] = None
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/providers/base.py:45:12
+   |
+43 |     ok: bool
+44 |     message_id: Optional[str] = None
+45 |     error: Optional[str] = None
+   |            ^^^^^^^^^^^^^
+46 |     # Only meaningful when ok=False. True = don't retry (dead), False = worth
+47 |     # retrying with backoff. None ("unknown cause") is treated as retryable —
+   |
+help: Convert to `X | None`
+   |
+44 |     message_id: Optional[str] = None
+   -     error: Optional[str] = None
+45 +     error: str | None = None
+46 |     # Only meaningful when ok=False. True = don't retry (dead), False = worth
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/providers/base.py:49:16
+   |
+47 |     # retrying with backoff. None ("unknown cause") is treated as retryable —
+48 |     # the safer, non-destructive default.
+49 |     permanent: Optional[bool] = None
+   |                ^^^^^^^^^^^^^^
+50 |     # Best-effort `retry-after` hint (seconds) from a 429 response, if the
+51 |     # provider could extract one. The engine uses this as a floor under its
+   |
+help: Convert to `X | None`
+   |
+48 |     # the safer, non-destructive default.
+   -     permanent: Optional[bool] = None
+49 +     permanent: bool | None = None
+50 |     # Best-effort `retry-after` hint (seconds) from a 429 response, if the
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/providers/base.py:53:26
+   |
+51 |     # provider could extract one. The engine uses this as a floor under its
+52 |     # own computed exponential backoff rather than replacing it outright.
+53 |     retry_after_seconds: Optional[float] = None
+   |                          ^^^^^^^^^^^^^^^
+help: Convert to `X | None`
+   |
+52 |     # own computed exponential backoff rather than replacing it outright.
+   -     retry_after_seconds: Optional[float] = None
+53 +     retry_after_seconds: float | None = None
+54 |
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/providers/base.py:77:20
+   |
+75 |         text: str,
+76 |         from_email: str,
+77 |         from_name: Optional[str] = None,
+   |                    ^^^^^^^^^^^^^
+78 |         reply_to: Optional[str] = None,
+79 |         idempotency_key: Optional[str] = None,
+   |
+help: Convert to `X | None`
+   |
+76 |         from_email: str,
+   -         from_name: Optional[str] = None,
+77 +         from_name: str | None = None,
+78 |         reply_to: Optional[str] = None,
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/providers/base.py:78:19
+   |
+76 |         from_email: str,
+77 |         from_name: Optional[str] = None,
+78 |         reply_to: Optional[str] = None,
+   |                   ^^^^^^^^^^^^^
+79 |         idempotency_key: Optional[str] = None,
+80 |     ) -> SendResult:
+   |
+help: Convert to `X | None`
+   |
+77 |         from_name: Optional[str] = None,
+   -         reply_to: Optional[str] = None,
+78 +         reply_to: str | None = None,
+79 |         idempotency_key: Optional[str] = None,
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/providers/base.py:79:26
+   |
+77 |         from_name: Optional[str] = None,
+78 |         reply_to: Optional[str] = None,
+79 |         idempotency_key: Optional[str] = None,
+   |                          ^^^^^^^^^^^^^
+80 |     ) -> SendResult:
+81 |         raise NotImplementedError
+   |
+help: Convert to `X | None`
+   |
+78 |         reply_to: Optional[str] = None,
+   -         idempotency_key: Optional[str] = None,
+79 +         idempotency_key: str | None = None,
+80 |     ) -> SendResult:
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/providers/base.py:88:20
+   |
+86 |         *,
+87 |         from_email: str,
+88 |         from_name: Optional[str] = None,
+   |                    ^^^^^^^^^^^^^
+89 |         reply_to: Optional[str] = None,
+90 |         idempotency_key_prefix: Optional[str] = None,
+   |
+help: Convert to `X | None`
+   |
+87 |         from_email: str,
+   -         from_name: Optional[str] = None,
+88 +         from_name: str | None = None,
+89 |         reply_to: Optional[str] = None,
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/providers/base.py:89:19
+   |
+87 |         from_email: str,
+88 |         from_name: Optional[str] = None,
+89 |         reply_to: Optional[str] = None,
+   |                   ^^^^^^^^^^^^^
+90 |         idempotency_key_prefix: Optional[str] = None,
+91 |     ) -> list[BatchItemResult]:
+   |
+help: Convert to `X | None`
+   |
+88 |         from_name: Optional[str] = None,
+   -         reply_to: Optional[str] = None,
+89 +         reply_to: str | None = None,
+90 |         idempotency_key_prefix: Optional[str] = None,
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/providers/base.py:90:33
+   |
+88 |         from_name: Optional[str] = None,
+89 |         reply_to: Optional[str] = None,
+90 |         idempotency_key_prefix: Optional[str] = None,
+   |                                 ^^^^^^^^^^^^^
+91 |     ) -> list[BatchItemResult]:
+92 |         """Naive default: one `send()` call per job. Correct for any
+   |
+help: Convert to `X | None`
+   |
+89 |         reply_to: Optional[str] = None,
+   -         idempotency_key_prefix: Optional[str] = None,
+90 +         idempotency_key_prefix: str | None = None,
+91 |     ) -> list[BatchItemResult]:
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> dispatch_repo/dispatch/providers/resend_provider.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | import hashlib
+ 4 | | import logging
+ 5 | | from typing import Optional
+ 6 | |
+ 7 | | import resend
+ 8 | |
+ 9 | | from .base import (
+10 | |     BatchItemResult,
+11 | |     EmailJob,
+12 | |     EmailProvider,
+13 | |     PermanentProviderError,
+14 | |     SendResult,
+15 | |     TransientProviderError,
+16 | | )
+17 | | from ..ratelimit import TokenBucket
+   | |___________________________________^
+18 |
+19 |   logger = logging.getLogger(__name__)
+   |
+help: Organize imports
+   |
+8  |
+9  + from ..ratelimit import TokenBucket
+10 | from .base import (
+--------------------------------------------------------------------------------
+17 | )
+   - from ..ratelimit import TokenBucket
+18 |
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/providers/resend_provider.py:32:35
+   |
+32 | def _status_of(exc: Exception) -> Optional[int]:
+   |                                   ^^^^^^^^^^^^^
+33 |     status = getattr(exc, "status_code", None) or getattr(exc, "code", None)
+34 |     try:
+   |
+help: Convert to `X | None`
+   |
+31 |
+   - def _status_of(exc: Exception) -> Optional[int]:
+32 + def _status_of(exc: Exception) -> int | None:
+33 |     status = getattr(exc, "status_code", None) or getattr(exc, "code", None)
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/providers/resend_provider.py:40:40
+   |
+40 | def _retry_after_of(exc: Exception) -> Optional[float]:
+   |                                        ^^^^^^^^^^^^^^^
+41 |     """Best-effort extraction of a `retry-after` header from whatever the
+42 |     installed resend SDK version attaches to its exceptions. Returns None
+   |
+help: Convert to `X | None`
+   |
+39 |
+   - def _retry_after_of(exc: Exception) -> Optional[float]:
+40 + def _retry_after_of(exc: Exception) -> float | None:
+41 |     """Best-effort extraction of a `retry-after` header from whatever the
+   |
+
+UP045 [*] Use `X | None` for type annotations
+   --> dispatch_repo/dispatch/providers/resend_provider.py:104:20
+    |
+102 |         text: str,
+103 |         from_email: str,
+104 |         from_name: Optional[str] = None,
+    |                    ^^^^^^^^^^^^^
+105 |         reply_to: Optional[str] = None,
+106 |         idempotency_key: Optional[str] = None,
+    |
+help: Convert to `X | None`
+    |
+103 |         from_email: str,
+    -         from_name: Optional[str] = None,
+104 +         from_name: str | None = None,
+105 |         reply_to: Optional[str] = None,
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> dispatch_repo/dispatch/providers/resend_provider.py:105:19
+    |
+103 |         from_email: str,
+104 |         from_name: Optional[str] = None,
+105 |         reply_to: Optional[str] = None,
+    |                   ^^^^^^^^^^^^^
+106 |         idempotency_key: Optional[str] = None,
+107 |     ) -> SendResult:
+    |
+help: Convert to `X | None`
+    |
+104 |         from_name: Optional[str] = None,
+    -         reply_to: Optional[str] = None,
+105 +         reply_to: str | None = None,
+106 |         idempotency_key: Optional[str] = None,
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> dispatch_repo/dispatch/providers/resend_provider.py:106:26
+    |
+104 |         from_name: Optional[str] = None,
+105 |         reply_to: Optional[str] = None,
+106 |         idempotency_key: Optional[str] = None,
+    |                          ^^^^^^^^^^^^^
+107 |     ) -> SendResult:
+108 |         sender = f"{from_name} <{from_email}>" if from_name else from_email
+    |
+help: Convert to `X | None`
+    |
+105 |         reply_to: Optional[str] = None,
+    -         idempotency_key: Optional[str] = None,
+106 +         idempotency_key: str | None = None,
+107 |     ) -> SendResult:
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> dispatch_repo/dispatch/providers/resend_provider.py:133:20
+    |
+131 |         *,
+132 |         from_email: str,
+133 |         from_name: Optional[str] = None,
+    |                    ^^^^^^^^^^^^^
+134 |         reply_to: Optional[str] = None,
+135 |         idempotency_key_prefix: Optional[str] = None,
+    |
+help: Convert to `X | None`
+    |
+132 |         from_email: str,
+    -         from_name: Optional[str] = None,
+133 +         from_name: str | None = None,
+134 |         reply_to: Optional[str] = None,
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> dispatch_repo/dispatch/providers/resend_provider.py:134:19
+    |
+132 |         from_email: str,
+133 |         from_name: Optional[str] = None,
+134 |         reply_to: Optional[str] = None,
+    |                   ^^^^^^^^^^^^^
+135 |         idempotency_key_prefix: Optional[str] = None,
+136 |     ) -> list[BatchItemResult]:
+    |
+help: Convert to `X | None`
+    |
+133 |         from_name: Optional[str] = None,
+    -         reply_to: Optional[str] = None,
+134 +         reply_to: str | None = None,
+135 |         idempotency_key_prefix: Optional[str] = None,
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> dispatch_repo/dispatch/providers/resend_provider.py:135:33
+    |
+133 |         from_name: Optional[str] = None,
+134 |         reply_to: Optional[str] = None,
+135 |         idempotency_key_prefix: Optional[str] = None,
+    |                                 ^^^^^^^^^^^^^
+136 |     ) -> list[BatchItemResult]:
+137 |         results: list[BatchItemResult] = []
+    |
+help: Convert to `X | None`
+    |
+134 |         reply_to: Optional[str] = None,
+    -         idempotency_key_prefix: Optional[str] = None,
+135 +         idempotency_key_prefix: str | None = None,
+136 |     ) -> list[BatchItemResult]:
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> dispatch_repo/dispatch/providers/resend_provider.py:147:20
+    |
+145 |         chunk: list[EmailJob],
+146 |         from_email: str,
+147 |         from_name: Optional[str],
+    |                    ^^^^^^^^^^^^^
+148 |         reply_to: Optional[str],
+149 |         idempotency_key_prefix: Optional[str],
+    |
+help: Convert to `X | None`
+    |
+146 |         from_email: str,
+    -         from_name: Optional[str],
+147 +         from_name: str | None,
+148 |         reply_to: Optional[str],
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> dispatch_repo/dispatch/providers/resend_provider.py:148:19
+    |
+146 |         from_email: str,
+147 |         from_name: Optional[str],
+148 |         reply_to: Optional[str],
+    |                   ^^^^^^^^^^^^^
+149 |         idempotency_key_prefix: Optional[str],
+150 |     ) -> list[BatchItemResult]:
+    |
+help: Convert to `X | None`
+    |
+147 |         from_name: Optional[str],
+    -         reply_to: Optional[str],
+148 +         reply_to: str | None,
+149 |         idempotency_key_prefix: Optional[str],
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> dispatch_repo/dispatch/providers/resend_provider.py:149:33
+    |
+147 |         from_name: Optional[str],
+148 |         reply_to: Optional[str],
+149 |         idempotency_key_prefix: Optional[str],
+    |                                 ^^^^^^^^^^^^^
+150 |     ) -> list[BatchItemResult]:
+151 |         sender = f"{from_name} <{from_email}>" if from_name else from_email
+    |
+help: Convert to `X | None`
+    |
+148 |         reply_to: Optional[str],
+    -         idempotency_key_prefix: Optional[str],
+149 +         idempotency_key_prefix: str | None,
+150 |     ) -> list[BatchItemResult]:
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> dispatch_repo/dispatch/providers/resend_provider.py:166:16
+    |
+164 |         try:
+165 |             result = resend.Batch.send(payload, options)
+166 |         except Exception as exc:
+    |                ^^^^^^^^^
+167 |             status = _status_of(exc)
+168 |             retry_after = _retry_after_of(exc)
+    |
+
+RUF022 [*] `__all__` is not sorted
+ --> dispatch_repo/dispatch/sources/__init__.py:4:11
+  |
+2 | from .json_source import JSONFileSource
+3 |
+4 | __all__ = ["Source", "JSONFileSource"]
+  |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: Apply an isort-style sorting to `__all__`
+  |
+3 |
+  - __all__ = ["Source", "JSONFileSource"]
+4 + __all__ = ["JSONFileSource", "Source"]
+  |
+
+UP035 [*] Import from `collections.abc` instead: `Iterable`, `Iterator`
+ --> dispatch_repo/dispatch/sources/base.py:4:1
+  |
+3 | from abc import ABC, abstractmethod
+4 | from typing import Iterable, Iterator
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+5 |
+6 | from ..models import Recipient
+  |
+help: Import from `collections.abc`
+  |
+3 | from abc import ABC, abstractmethod
+  - from typing import Iterable, Iterator
+4 + from collections.abc import Iterable, Iterator
+5 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> dispatch_repo/dispatch/sources/json_source.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | import json
+ 4 | | import logging
+ 5 | | from datetime import datetime
+ 6 | | from pathlib import Path
+ 7 | | from typing import Iterator
+ 8 | |
+ 9 | | from .base import Source
+10 | | from ..models import Recipient
+   | |______________________________^
+11 |
+12 |   logger = logging.getLogger(__name__)
+   |
+help: Organize imports
+   |
+8  |
+9  + from ..models import Recipient
+10 | from .base import Source
+   - from ..models import Recipient
+11 |
+   |
+
+UP035 [*] Import from `collections.abc` instead: `Iterator`
+ --> dispatch_repo/dispatch/sources/json_source.py:7:1
+  |
+5 | from datetime import datetime
+6 | from pathlib import Path
+7 | from typing import Iterator
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+8 |
+9 | from .base import Source
+  |
+help: Import from `collections.abc`
+  |
+6 | from pathlib import Path
+  - from typing import Iterator
+7 + from collections.abc import Iterator
+8 |
+  |
+
+TRY004 Prefer `TypeError` exception for invalid type
+  --> dispatch_repo/dispatch/sources/json_source.py:40:13
+   |
+39 |         if not isinstance(raw, list):
+40 |             raise ValueError(f"{self.path} must contain a JSON array of entries")
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+41 |
+42 |         seen_in_file: set[str] = set()
+   |
+
+FURB162 Unnecessary timezone replacement with zero offset
+  --> dispatch_repo/dispatch/sources/json_source.py:66:53
+   |
+64 |         if raw_created:
+65 |             try:
+66 |                 created_at = datetime.fromisoformat(str(raw_created).replace("Z", "+00:00"))
+   |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+67 |             except ValueError:
+68 |                 logger.debug("Unparseable createdAt %r for %s", raw_created, email)
+   |
+help: Remove `.replace()` call
+   |
+65 |             try:
+   -                 created_at = datetime.fromisoformat(str(raw_created).replace("Z", "+00:00"))
+66 +                 created_at = datetime.fromisoformat(str(raw_created))
+67 |             except ValueError:
+   |
+note: This is an unsafe fix and may change runtime behavior
+
+RUF022 [*] `__all__` is not sorted
+ --> dispatch_repo/dispatch/templates/__init__.py:4:11
+  |
+2 | from .launch import LaunchTemplate
+3 |
+4 | __all__ = ["Template", "LaunchTemplate"]
+  |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: Apply an isort-style sorting to `__all__`
+  |
+3 |
+  - __all__ = ["Template", "LaunchTemplate"]
+4 + __all__ = ["LaunchTemplate", "Template"]
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> dispatch_repo/dispatch/templates/launch.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | from pathlib import Path
+ 4 | | from typing import Optional
+ 5 | |
+ 6 | | from jinja2 import Environment, FileSystemLoader, select_autoescape
+ 7 | |
+ 8 | | from .base import Template
+ 9 | | from ..models import Recipient, RenderedEmail
+   | |_____________________________________________^
+10 |
+11 |   _TEMPLATE_DIR = Path(__file__).resolve().parent / "html"
+   |
+help: Organize imports
+   |
+7  |
+8  + from ..models import Recipient, RenderedEmail
+9  | from .base import Template
+   - from ..models import Recipient, RenderedEmail
+10 |
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/templates/launch.py:31:22
+   |
+29 |         self,
+30 |         pre_order_url: str = "https://miyulabs.in/",
+31 |         explore_url: Optional[str] = None,
+   |                      ^^^^^^^^^^^^^
+32 |         solo_mrp: str = "14,999",
+33 |         solo_price: str = "5,999",
+   |
+help: Convert to `X | None`
+   |
+30 |         pre_order_url: str = "https://miyulabs.in/",
+   -         explore_url: Optional[str] = None,
+31 +         explore_url: str | None = None,
+32 |         solo_mrp: str = "14,999",
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/templates/launch.py:38:21
+   |
+36 |         partner_discount: str = "1,000",
+37 |         preorder_discount: str = "500",
+38 |         promo_code: Optional[str] = None,
+   |                     ^^^^^^^^^^^^^
+39 |         **kwargs,
+40 |     ):
+   |
+help: Convert to `X | None`
+   |
+37 |         preorder_discount: str = "500",
+   -         promo_code: Optional[str] = None,
+38 +         promo_code: str | None = None,
+39 |         **kwargs,
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> dispatch_repo/dispatch/validation.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | import logging
+ 4 | | import re
+ 5 | | import time
+ 6 | | from abc import ABC, abstractmethod
+ 7 | | from dataclasses import dataclass
+ 8 | | from typing import Optional
+ 9 | |
+10 | | import os
+11 | | from typing import Optional
+12 | |
+13 | | from .dns_cache import DNSValidationCache
+   | |_________________________________________^
+help: Organize imports
+   |
+3  | import logging
+4  + import os
+5  | import re
+--------------------------------------------------------------------------------
+10 |
+   - import os
+   - from typing import Optional
+   -
+11 | from .dns_cache import DNSValidationCache
+   -
+12 |
+   |
+
+F401 [*] `logging` imported but unused
+ --> dispatch_repo/dispatch/validation.py:3:8
+  |
+1 | from __future__ import annotations
+2 |
+3 | import logging
+  |        ^^^^^^^
+4 | import re
+5 | import time
+  |
+help: Remove unused import: `logging`
+  |
+2 |
+  - import logging
+3 | import re
+  |
+
+F401 [*] `time` imported but unused
+ --> dispatch_repo/dispatch/validation.py:5:8
+  |
+3 | import logging
+4 | import re
+5 | import time
+  |        ^^^^
+6 | from abc import ABC, abstractmethod
+7 | from dataclasses import dataclass
+  |
+help: Remove unused import: `time`
+  |
+4 | import re
+  - import time
+5 | from abc import ABC, abstractmethod
+  |
+
+F811 [*] Redefinition of unused `Optional` from line 8
+  --> dispatch_repo/dispatch/validation.py:11:20
+   |
+ 6 | from abc import ABC, abstractmethod
+ 7 | from dataclasses import dataclass
+ 8 | from typing import Optional
+   |                    -------- previous definition of `Optional` here
+ 9 |
+10 | import os
+11 | from typing import Optional
+   |                    ^^^^^^^^ `Optional` redefined here
+12 |
+13 | from .dns_cache import DNSValidationCache
+   |
+help: Remove definition: `Optional`
+   |
+10 | import os
+   - from typing import Optional
+11 |
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/validation.py:33:13
+   |
+31 | class ValidationResult:
+32 |     valid: bool
+33 |     reason: Optional[str] = None  # only set when valid=False
+   |             ^^^^^^^^^^^^^
+help: Convert to `X | None`
+   |
+32 |     valid: bool
+   -     reason: Optional[str] = None  # only set when valid=False
+33 +     reason: str | None = None  # only set when valid=False
+34 |
+   |
+
+F821 Undefined name `Recipient`
+  --> dispatch_repo/dispatch/validation.py:52:35
+   |
+51 |     @abstractmethod
+52 |     def validate(self, recipient: Recipient) -> ValidationResult:
+   |                                   ^^^^^^^^^
+53 |         raise NotImplementedError
+   |
+
+F821 Undefined name `Recipient`
+  --> dispatch_repo/dispatch/validation.py:61:35
+   |
+59 |     disabled, so validation degrades gracefully instead of failing shut."""
+60 |
+61 |     def validate(self, recipient: Recipient) -> ValidationResult:
+   |                                   ^^^^^^^^^
+62 |         if not _EMAIL_RE.match(recipient.email):
+63 |             return ValidationResult(valid=False, reason="malformed address")
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/validation.py:81:16
+   |
+79 |         ttl_seconds: float = 3600.0,
+80 |         *,
+81 |         cache: Optional[DNSValidationCache] = None,
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+82 |         resolver_nameservers: Optional[str] = None,
+83 |         resolver_configure: bool = True,
+   |
+help: Convert to `X | None`
+   |
+80 |         *,
+   -         cache: Optional[DNSValidationCache] = None,
+81 +         cache: DNSValidationCache | None = None,
+82 |         resolver_nameservers: Optional[str] = None,
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> dispatch_repo/dispatch/validation.py:82:31
+   |
+80 |         *,
+81 |         cache: Optional[DNSValidationCache] = None,
+82 |         resolver_nameservers: Optional[str] = None,
+   |                               ^^^^^^^^^^^^^
+83 |         resolver_configure: bool = True,
+84 |     ):
+   |
+help: Convert to `X | None`
+   |
+81 |         cache: Optional[DNSValidationCache] = None,
+   -         resolver_nameservers: Optional[str] = None,
+82 +         resolver_nameservers: str | None = None,
+83 |         resolver_configure: bool = True,
+   |
+
+F821 Undefined name `Recipient`
+   --> dispatch_repo/dispatch/validation.py:117:35
+    |
+115 |         return resolver
+116 |
+117 |     def validate(self, recipient: Recipient) -> ValidationResult:
+    |                                   ^^^^^^^^^
+118 |         if not _EMAIL_RE.match(recipient.email):
+119 |             return ValidationResult(valid=False, reason="malformed address")
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> dispatch_repo/dispatch/validation.py:153:16
+    |
+151 |         except dns.resolver.NoAnswer:
+152 |             pass
+153 |         except Exception as exc:
+    |                ^^^^^^^^^
+154 |             logger.warning(
+155 |                 "MX lookup failed for %s (%s) — treating as valid rather than guessing",
+    |
+
+F821 Undefined name `logger`
+   --> dispatch_repo/dispatch/validation.py:154:13
+    |
+152 |             pass
+153 |         except Exception as exc:
+154 |             logger.warning(
+    |             ^^^^^^
+155 |                 "MX lookup failed for %s (%s) — treating as valid rather than guessing",
+156 |                 domain,
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> dispatch_repo/dispatch/validation.py:166:16
+    |
+164 |         except dns.resolver.NXDOMAIN:
+165 |             return ValidationResult(valid=False, reason=f"no MX or A record for domain: {domain}")
+166 |         except Exception as exc:
+    |                ^^^^^^^^^
+167 |             logger.warning(
+168 |                 "A-record fallback lookup failed for %s (%s) — treating as valid",
+    |
+
+F821 Undefined name `logger`
+   --> dispatch_repo/dispatch/validation.py:167:13
+    |
+165 |             return ValidationResult(valid=False, reason=f"no MX or A record for domain: {domain}")
+166 |         except Exception as exc:
+167 |             logger.warning(
+    |             ^^^^^^
+168 |                 "A-record fallback lookup failed for %s (%s) — treating as valid",
+169 |                 domain,
+    |
+
+F401 [*] `dispatch.cli.main` imported but unused
+ --> dispatch_repo/tests/test_cli.py:4:40
+  |
+2 | from unittest.mock import patch
+3 |
+4 | from dispatch.cli import build_parser, main
+  |                                        ^^^^
+help: Remove unused import: `dispatch.cli.main`
+  |
+3 |
+  - from dispatch.cli import build_parser, main
+4 + from dispatch.cli import build_parser
+5 |
+  |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> dispatch_repo/tests/test_db.py:60:26
+   |
+58 |     row = store.claim_batch("launch", limit=10)[0]
+59 |
+60 |     past = (datetime.now(timezone.utc) - timedelta(seconds=1)).isoformat()
+   |                          ^^^^^^^^^^^^
+61 |     store.mark_failed(row["send_id"], attempts=1, error="transient", next_attempt_at=past)
+   |
+help: Convert to `datetime.UTC` alias
+   |
+2  | from dispatch.models import Recipient
+3  + from datetime import UTC
+4  |
+--------------------------------------------------------------------------------
+60 |
+   -     past = (datetime.now(timezone.utc) - timedelta(seconds=1)).isoformat()
+61 +     past = (datetime.now(UTC) - timedelta(seconds=1)).isoformat()
+62 |     store.mark_failed(row["send_id"], attempts=1, error="transient", next_attempt_at=past)
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> dispatch_repo/tests/test_engine.py:1:1
+  |
+1 | / from unittest.mock import MagicMock
+2 | | from dispatch.config import Settings
+3 | | from dispatch.db import StateStore
+4 | | from dispatch.engine import enqueue_campaign, SendEngine
+5 | | from dispatch.models import Recipient
+6 | | from dispatch.providers.base import EmailProvider, SendResult
+7 | | from dispatch.templates.base import Template
+8 | | from dispatch.models import RenderedEmail
+  | |_________________________________________^
+help: Organize imports
+  |
+1 | from unittest.mock import MagicMock
+2 +
+3 | from dispatch.config import Settings
+4 | from dispatch.db import StateStore
+  - from dispatch.engine import enqueue_campaign, SendEngine
+  - from dispatch.models import Recipient
+5 + from dispatch.engine import SendEngine, enqueue_campaign
+6 + from dispatch.models import Recipient, RenderedEmail
+7 | from dispatch.providers.base import EmailProvider, SendResult
+8 | from dispatch.templates.base import Template
+  - from dispatch.models import RenderedEmail
+9 |
+  |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> dispatch_repo/tests/test_engine.py:86:32
+   |
+84 |     batch = store.claim_batch("test-campaign", limit=1)
+85 |     send_id = batch[0]["send_id"]
+86 |     stale_time = (datetime.now(timezone.utc) - timedelta(seconds=600)).isoformat()
+   |                                ^^^^^^^^^^^^
+87 |     with store._connect() as conn:
+88 |         conn.execute("UPDATE campaign_sends SET updated_at=? WHERE id=?", (stale_time, send_id))
+   |
+help: Convert to `datetime.UTC` alias
+   |
+8  | from dispatch.models import RenderedEmail
+9  + from datetime import UTC
+10 |
+--------------------------------------------------------------------------------
+86 |     send_id = batch[0]["send_id"]
+   -     stale_time = (datetime.now(timezone.utc) - timedelta(seconds=600)).isoformat()
+87 +     stale_time = (datetime.now(UTC) - timedelta(seconds=600)).isoformat()
+88 |     with store._connect() as conn:
+   |
+
+F401 [*] `tempfile` imported but unused
+ --> dispatch_repo/tests/test_json_source.py:2:8
+  |
+1 | import json
+2 | import tempfile
+  |        ^^^^^^^^
+3 | from pathlib import Path
+  |
+help: Remove unused import: `tempfile`
+  |
+1 | import json
+  - import tempfile
+2 | from pathlib import Path
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> dispatch_repo/tests/test_resend_provider.py:1:1
+  |
+1 | / from unittest.mock import patch, MagicMock
+2 | |
+3 | | from dispatch.providers.base import EmailJob
+4 | | from dispatch.providers.resend_provider import ResendProvider
+  | |_____________________________________________________________^
+help: Organize imports
+  |
+  - from unittest.mock import patch, MagicMock
+1 + from unittest.mock import MagicMock, patch
+2 |
+  |
+
+F401 [*] `unittest.mock.MagicMock` imported but unused
+ --> dispatch_repo/tests/test_resend_provider.py:1:34
+  |
+1 | from unittest.mock import patch, MagicMock
+  |                                  ^^^^^^^^^
+2 |
+3 | from dispatch.providers.base import EmailJob
+  |
+help: Remove unused import: `unittest.mock.MagicMock`
+  |
+  - from unittest.mock import patch, MagicMock
+1 + from unittest.mock import patch
+2 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> dispatch_repo/tests/test_validation.py:1:1
+  |
+1 | / from unittest.mock import patch
+2 | |
+3 | | from dispatch.models import Recipient
+4 | | from dispatch.validation import SyntaxOnlyValidator, SyntaxAndMXValidator, ValidationResult
+  | |___________________________________________________________________________________________^
+help: Organize imports
+  |
+3 | from dispatch.models import Recipient
+  - from dispatch.validation import SyntaxOnlyValidator, SyntaxAndMXValidator, ValidationResult
+4 + from dispatch.validation import (
+5 +     SyntaxAndMXValidator,
+6 +     SyntaxOnlyValidator,
+7 +     ValidationResult,
+8 + )
+9 |
+  |
+
+Found 81 errors.
+[*] 70 fixable with `--fix` (1 unsafe fix available with `--fix --unsafe-fixes`).
