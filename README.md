@@ -1,12 +1,10 @@
-# CodeAlpha Object Detection and Tracking
-
-**CodeAlpha AI Internship — Task 4**
+# Object Detection and Tracking
 
 A CPU-compatible computer vision application that performs object detection with pretrained YOLO ONNX models and multi-frame object tracking using SORT.
 
 ## Problem Statement
 
-Object detection alone identifies objects independently on every frame without knowing whether an object in frame *t* is the same one from frame *t‑1*. This project combines pretrained YOLO detection with a SORT Kalman-filter tracker to assign persistent tracking IDs across video frames.
+Object detection identifies objects independently in every frame without knowing whether an object in frame *t* is the same one from frame *t−1*. This project combines pretrained YOLO detection with a SORT Kalman-filter tracker to assign persistent tracking IDs across video frames.
 
 ## Features Implemented
 
@@ -29,7 +27,7 @@ Object detection alone identifies objects independently on every frame without k
 | **YOLO26n** (default) | **0.490** | **11.7** | **10.18 MiB** | **Selected: +21% mAP, +31% faster, smaller** |
 | YOLOv8s | 0.664 | 3.6 | 42.79 MiB | High-accuracy mode |
 
-All metrics measured on COCO128 test split (64 images, 506 annotated objects) with identical evaluation code. See `reports/accuracy_comparison.md` for threshold calibration, resolution experiments, and detailed results.
+All metrics were measured on the COCO128 test split (64 images, 506 annotated objects) using identical evaluation code. See `reports/accuracy_comparison.md` for threshold calibration, resolution experiments, and detailed results.
 
 > **Note:** Confidence scores displayed in the application are the model's raw output scores and are **not** calibrated probabilities that a detection is correct.
 
@@ -38,7 +36,6 @@ All metrics measured on COCO128 test split (64 images, 506 annotated objects) wi
 - Python 3.14
 - OpenCV (`opencv-python`)
 - ONNX Runtime (`onnxruntime`)
-- NLTK-free NLP: N/A — this is a computer vision project
 - `filterpy`, NumPy, SciPy
 - Streamlit
 - pytest & Ruff
@@ -46,7 +43,7 @@ All metrics measured on COCO128 test split (64 images, 506 annotated objects) wi
 ## Project Structure
 
 ```text
-CodeAlpha_ObjectDetectionTracking/
+ObjectDetectionTracking/
 ├── .gitignore
 ├── pyproject.toml
 ├── requirements.txt
@@ -86,7 +83,7 @@ mv yolo26n.onnx models/
 # Legacy baseline (YOLOv8n)
 curl -L -o models/yolov8n.onnx https://huggingface.co/Kalray/yolov8/resolve/main/yolov8n.onnx
 
-# Optional high-accuracy (YOLOv8s)
+# Optional high-accuracy model (YOLOv8s)
 yolo export model=yolov8s.pt format=onnx simplify=True
 mv yolov8s.onnx models/
 ```
@@ -108,7 +105,7 @@ mv yolov8s.onnx models/
 # High-accuracy mode
 ./venv/bin/python -m src.pipeline --source /path/to/video.mp4 --model models/yolov8s.onnx --conf 0.25 --iou 0.50
 
-# Webcam (starts only when invoked)
+# Webcam (starts only when explicitly invoked)
 ./venv/bin/python -m src.pipeline --webcam
 ```
 
@@ -123,13 +120,15 @@ mv yolov8s.onnx models/
 ## Algorithm Overview
 
 ### Object Detection (YOLO → ONNX Runtime)
-1. **Letterbox:** Resize input preserving aspect ratio, pad to model input size with (114, 114, 114).
+
+1. **Letterbox:** Resize input while preserving aspect ratio, then pad to model input size with (114, 114, 114).
 2. **Preprocess:** BGR→RGB, /255.0 normalization, NCHW transpose.
 3. **Inference:** ONNX Runtime `CPUExecutionProvider` with `ORT_ENABLE_ALL` graph optimization.
-4. **Decode:** Auto-dispatch between YOLOv8 `(1, 84, N)` and YOLO26 `(1, N, 6)` output formats.
-5. **Post-process:** Class-aware NMS, unscale + clip boxes to original image coordinates.
+4. **Decode:** Automatically dispatch between YOLOv8 `(1, 84, N)` and YOLO26 `(1, N, 6)` output formats.
+5. **Post-process:** Class-aware NMS, unscale and clip boxes to original image coordinates.
 
 ### Object Tracking (SORT + Hungarian)
+
 1. **Predict:** Kalman filter predicts each track's bounding box for the current frame.
 2. **Associate:** Compute pairwise IoU between predictions and new detections, with class-aware gating (different-class pairs get IoU=0). Solve optimal assignment with `scipy.optimize.linear_sum_assignment`.
 3. **Update/Create/Delete:** Matched tracks are updated; unmatched detections create new tracks; tracks unseen for `max_age` frames are deleted.
@@ -141,7 +140,7 @@ mv yolov8s.onnx models/
 - **Accuracy mode:** ~8.6 FPS, mAP@50=0.501 (YOLO26n 768px).
 - **High accuracy mode:** ~3.6 FPS, mAP@50=0.664 (YOLOv8s 640px).
 - SORT relies on motion + IoU (no appearance embeddings), so ID switches can occur during prolonged occlusion.
-- Tracking metrics (HOTA, IDF1, MOTA) are not evaluated due to absence of ground-truth track-ID annotations.
+- Tracking metrics (HOTA, IDF1, MOTA) are not evaluated due to the absence of ground-truth track-ID annotations.
 - Peak RSS is bounded at ~359 MiB across all configurations.
 
 ## Future Improvements
